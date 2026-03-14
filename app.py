@@ -1,6 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import Response
-from rembg import remove
 
 app = FastAPI(title="EBII Background Removal API")
 
@@ -10,6 +9,11 @@ def root():
     return {"success": True, "message": "Background removal service is running"}
 
 
+@app.get("/health")
+def health():
+    return {"ok": True}
+
+
 @app.post("/remove-bg")
 async def remove_bg(file: UploadFile = File(...)):
     try:
@@ -17,6 +21,9 @@ async def remove_bg(file: UploadFile = File(...)):
 
         if not input_bytes:
             raise HTTPException(status_code=400, detail="Empty file")
+
+        # Lazy import: servis açıldıktan sonra çağrı geldiğinde yüklenir
+        from rembg import remove
 
         output_bytes = remove(input_bytes)
 
